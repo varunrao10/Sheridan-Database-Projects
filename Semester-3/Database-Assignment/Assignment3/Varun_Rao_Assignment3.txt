@@ -1,0 +1,166 @@
+SQL> 
+SQL> /*
+SQL>File: Assignment 3
+SQL>Author: Varun Rao
+SQL>Oracale Username: s11_raova
+SQL>Description: Completed the following questions
+SQL>*/
+SQL> 
+SQL> 
+SQL> /*Question: 1
+SQL>How many vehicles were sold with no insurance coverage
+SQL>(fire, collision, liability, property)? If no value is entered for any of the insurance fields,
+SQL>it is considered that the customer did not purchase that kind of insurance. */
+SQL> 
+SQL> SELECT COUNT(DISTINCT carserial) AS Vehicles_Sold_No_Insurance
+  2  FROM S11.saleinv
+  3  WHERE (insfire IS NULL OR insfire = 'N')
+  4  AND (inscollision IS NULL OR inscollision = 'N') 
+  5  AND (insliability IS NULL OR insliability = 'N') 
+  6  AND (insproperty IS NULL OR insproperty = 'N');
+
+VEHICLES_SOLD_NO_INSURANCE
+--------------------------
+                        63
+
+SQL> 
+SQL> /*Question: 2
+SQL>Show name, city and home phone number of all customers that are interested in buying 
+SQL>a car with stereo radio. Arrange the result in descending name order. The result must not have duplicates. 
+SQL>(There are two different stereo radios available; see options). */
+SQL> 
+SQL> Select DISTINCT cus.custname,custcity,custhphone
+  2  FROM S11.customer cus
+  3  INNER JOIN S11.prospect pro ON cus.custname = pro.custname
+  4  INNER JOIN S11.options opt ON pro.optioncode = opt.optioncode
+  5  WHERE optiondesc = 'STEREO RADIO'
+  6  ORDER BY cus.custname DESC;
+
+CUSTNAME             CUSTCITY             CUSTHPHONE   
+-------------------- -------------------- -------------
+ZAKEIR SAMSOODIN     MISSISSAUGA          (905)623-5332
+ZACHARY CRUMP        Nowhere                           
+YOGESH THAKUR        Mississauga          (647)633-7645
+VIKKI WONG           MISSISSAUGA          (647)975-5000
+VICTOR               OAKVILLE             (416)423-4325
+TYRONE SAGARINO      MISSISSAUGA          (905)444-7777
+STANLEY LEE          BRAMPTON             (905)874-4393
+SHANNON HAN          HUNDRED ACRE WOOD    (000)123-1234
+NIZETTE ROBAS        MISSISSAUGA          (905)111-1111
+MARY WHITE           BRAMPTON             (666)222-3333
+KYLE GABET           Georgetown           (905)873-0191
+JUNGAH PARK          Oakville             (905)123-4567
+JOSH HOWSON          Georgetown           (905)703-1099
+HADYA ADNAN          Hamilton             (905)924-1234
+E LOMBARD            Oakville             (905)811-1234
+DAMAN                MISSISSAUGA          (111)111-1111
+CARL EDWARDS         MISSISSAUGA          (416)882-1494
+BRAYDON VAREY        Georgetown           (905)754-7845
+ART KHLAMOV          Oakville             (098)563-8542
+
+19 rows selected. 
+
+SQL> 
+SQL> /*Question: 3
+SQL>List the names and addresses of customers who purchased (not who owns) ACURA MDX and who live in Oakville. */
+SQL> Select cus.custname, custstreet || ' ' ||
+  2  custcity || ', ' || custpostal AS Address     
+  3  FROM S11.customer cus
+  4  INNER JOIN S11.saleinv sinv ON cus.custname = sinv.custname
+  5  INNER JOIN S11.car c ON sinv.carserial = c.carserial
+  6                      AND c.carmake = 'ACURA'
+  7                      AND c.carmodel = 'MDX'
+  8  WHERE cus.custcity = 'Oakville';
+
+CUSTNAME             ADDRESS                                           
+-------------------- --------------------------------------------------
+PETER RUSHELEAU      100 Sheridan Way Oakville, L8L2L5                 
+
+SQL> 
+SQL> 
+SQL> /*Question: 4
+SQL>What is the average cost of service visits (partscost + laborcost) before taxes of 2017 Acura make cars? Round the result to 2 decimal places.
+SQL>
+SQL>*********************I Tested this for ACURA but no service invoices were there for 2017 models so I searched for Jaguar instead
+SQL>*/
+SQL> Select ROUND(AVG(partscost + laborcost),2) AS ServiceCost 
+  2  FROM S11.servinv svinv
+  3  INNER JOIN S11.customer cus ON svinv.custname = cus.custname
+  4  INNER JOIN S11.car c ON cus.custname = c.custname
+  5  WHERE 
+  6  c.carmake = 'JAGUAR' AND 
+  7  c.caryear = '2017';
+
+SERVICECOST
+-----------
+     493.52
+
+SQL> 
+SQL> 
+SQL> /*Question: 5
+SQL>Write the most effective query that produces the list with names and phone numbers
+SQL>of Brampton customers who have purchased (not who owns) a car from Specialty Imports
+SQL>but have never come in for servicing. (No duplicates). */
+SQL> 
+SQL> Select DISTINCT cus.custname,cus.custhphone
+  2  FROM S11.customer cus
+  3  INNER JOIN S11.saleinv sinv ON cus.custname = sinv.custname
+  4  WHERE cus.custname NOT IN
+  5  (SELECT custname FROM S11.servinv)
+  6  AND cus.custcity = 'Brampton';
+
+CUSTNAME             CUSTHPHONE   
+-------------------- -------------
+CATHERINE OWUSU      (450)448-8843
+ROBERT FILOSA        (905)842-5678
+DEJAN P              (905)867-9431
+
+SQL> 
+SQL> 
+SQL> 
+SQL> /*Question: 6
+SQL>Show the name, the car make and model, and the amount of money (including taxes)of the customer who spent 
+SQL>the most in one single service visit. Remeber that the service cost is made out of partscost and laborcost. */
+SQL> 
+SQL> SELECT DISTINCT cus.custname, c.carmake, c.carmodel,(partscost + laborcost) * (1 + (taxrate/100)) AS ServiceCost 
+  2  FROM S11.customer cus
+  3  INNER JOIN S11.car c ON cus.custname = c.custname
+  4  INNER JOIN S11.servinv svinv ON cus.custname = svinv.custname
+  5  WHERE ( (partscost + laborcost) * (1 + (taxrate/100)) ) = 
+  6      (
+  7      SELECT MAX(( (partscost + laborcost) * (1 + (taxrate/100)) ))AS ServiceCost
+  8      FROM S11.servinv svinv
+  9      );
+
+CUSTNAME             CARMAKE    CARMODEL   SERVICECOST
+-------------------- ---------- ---------- -----------
+ALAA ATRI            MERCEDES   AMG63            61020
+
+SQL> 
+SQL> 
+SQL> 
+SQL> /*Question: 7
+SQL>Print in a formatted mailing label, the name, full address, car make and model of the person(s)
+SQL>who purchased the most expensive car from Specialty Imports. */
+SQL> Select cus.custname || CHR(10) || cus.custstreet ||CHR(10)||
+  2  cus.custcity || ' ' || cus.custprovince || ' ' || cus.custpostal || CHR(10) ||
+  3  c.carmake || ' ' || c.carmodel AS Mailing_Address 
+  4  FROM S11.customer cus
+  5  INNER JOIN S11.saleinv sinv ON cus.custname = sinv.custname
+  6  INNER JOIN S11.car c ON sinv.carserial = c.carserial
+  7  WHERE sinv.carsaleprice = 
+  8      (
+  9      select MAX(carsaleprice) from S11.saleinv
+ 10      );
+
+MAILING_ADDRESS                                                                                
+-----------------------------------------------------------------------------------------------
+CORY SVENSSON
+6240 Millers Grove
+Mississauga ON L5N 3C8
+MERCEDES FUNMOB
+
+
+SQL> 
+SQL> 
+SQL> SPOOL OFF

@@ -1,8 +1,8 @@
 /*
-File: sdjasdjlka
-Author:
-Oraccale Username
-Description:
+File: Assignment 3
+Author: Varun Rao
+Oracale Username: s11_raova
+Description: Completed the following questions
 */
 --Code Goes Here
 
