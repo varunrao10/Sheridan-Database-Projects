@@ -1,4 +1,7 @@
-
+delete from servwork;
+delete from servinv;
+delete from prospect;
+delete from invoption;
 delete from tradeinv;
 delete from saleinv;
 delete from baseoption;
@@ -23,13 +26,13 @@ INSERT INTO baseoption VALUES('W11','A19BRDX3');
 INSERT INTO saleinv
 VALUES('I' || TO_CHAR(SalevInv_SaleInvno.NEXTVAL, 'FM00000'),TO_DATE('2019-01-26','YYYY-MM-DD'),'DEVON WOODCOMB','Varun Rao','A19BRDX3',NULL,NULL,NULL,NULL,DEFAULT,NULL,NULL,0.10 *58000,58000);
 
-Update car
-set custname = 'Varun Rao'
-where carserial='A19BRDX3';
+UPDATE car
+SET custname = 'Varun Rao'
+WHERE carserial='A19BRDX3';
 
-Update car
-set custname = NULL
-where carserial='J11WAXE1';
+UPDATE car
+SET custname = NULL
+WHERE carserial='J11WAXE1';
 
 INSERT INTO tradeinv
 VALUES('I' || TO_CHAR(SalevInv_SaleInvno.CURRVAL, 'FM00000'),'J11WAXE1',15000);
@@ -37,4 +40,25 @@ VALUES('I' || TO_CHAR(SalevInv_SaleInvno.CURRVAL, 'FM00000'),'J11WAXE1',15000);
 INSERT INTO purchinv
 VALUES('I' || TO_CHAR(SalevInv_SaleInvno.CURRVAL, 'FM00000'),'Varun Rao',TO_DATE('2019-01-26','YYYY-MM-DD'));
 
-commit;
+INSERT INTO invoption
+VALUES('I' || TO_CHAR(SalevInv_SaleInvno.CURRVAL, 'FM00000'),'D23',250);
+
+INSERT INTO invoption
+VALUES('I' || TO_CHAR(SalevInv_SaleInvno.CURRVAL, 'FM00000'),'CD2',195);
+
+INSERT INTO prospect (custname,carmake,carmodel)
+VALUES('Varun Rao','ACURA','RDX');
+
+INSERT INTO prospect (custname,carmake,carmodel)
+VALUES('Varun Rao','JAGUAR','XF');
+
+INSERT INTO servinv (servinvno,servdate,custname,carserial,partsprice,laborprice)
+VALUES('W' || TO_CHAR(ServInv_Servinvno.NEXTVAL, 'FM0000'),TO_DATE('2019-01-27','YYYY-MM-DD'),'John Smith','J18RAXF2',200,500);
+
+INSERT INTO servwork
+VALUES('W' || TO_CHAR(ServInv_Servinvno.CURRVAL, 'FM0000'),'Oil Change');
+
+INSERT INTO servwork
+VALUES('W' || TO_CHAR(ServInv_Servinvno.CURRVAL, 'FM0000'),'Rotate Tires');
+
+rollback;
